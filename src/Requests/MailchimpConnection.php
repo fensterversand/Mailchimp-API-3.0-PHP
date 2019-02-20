@@ -73,7 +73,7 @@ class MailchimpConnection implements HttpRequest
     private $handle;
 
     /**
-     * A holder for the option that are set on this connections handle
+     * A holder for the options that are set on this connections handle
      * @var array
      */
     private $cUrlOptions = [];
