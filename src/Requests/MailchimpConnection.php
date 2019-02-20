@@ -76,7 +76,7 @@ class MailchimpConnection implements HttpRequest
      * A holder for the option that are set on this connections handle
      * @var array
      */
-    private $current_options = [];
+    private $cUrlOptions = [];
 
 
     /**
@@ -104,6 +104,16 @@ class MailchimpConnection implements HttpRequest
      */
     private function prepareHandle()
     {
+        $this->setDefaultCUrlOptions();
+        $this->setCustomCUrlOptions();
+    }
+
+    /**
+     * Set default cUrl options
+     * @throws MailchimpException
+     */
+    private function setDefaultCUrlOptions()
+    {
         // set the URL for this request
         $this->setOption(CURLOPT_URL, $this->current_request->getUrl());
 
@@ -124,6 +134,18 @@ class MailchimpConnection implements HttpRequest
 
         // set the callback to run against each of the response headers
         $this->setOption(CURLOPT_HEADERFUNCTION, [&$this, "parseResponseHeader"]);
+    }
+
+    /**
+     * Set custom cUrl options
+     * @throws MailchimpException
+     */
+    private function setCustomCUrlOptions()
+    {
+        $this->cUrlOptions = $this->current_request->getCUrlOptions();
+
+        curl_setopt_array($this->handle, $this->cUrlOptions);
+
     }
 
     /**
@@ -198,7 +220,7 @@ class MailchimpConnection implements HttpRequest
      */
     public function getCurrentOption($key)
     {
-        return $this->current_options[$key];
+        return $this->cUrlOptions[$key];
     }
 
     /**
@@ -208,7 +230,7 @@ class MailchimpConnection implements HttpRequest
      */
     public function setCurrentOptions($options)
     {
-        $this->current_options = [];
+        $this->cUrlOptions = [];
         foreach ($options as $option_name => $option_value) {
             $this->setOption($option_name, $option_value);
         }
@@ -222,7 +244,7 @@ class MailchimpConnection implements HttpRequest
     public function setOption($name, $value)
     {
         curl_setopt($this->handle, $name, $value);
-        $this->current_options[$name] = $value;
+        $this->cUrlOptions[$name] = $value;
     }
 
     /**

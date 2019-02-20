@@ -99,6 +99,12 @@ class MailchimpRequest
     private $headers;
 
     /**
+     * The cUrl options
+     * @var array
+     */
+    private $cUrlOptions = [];
+
+    /**
      * The success callback to be executed on a successful request
      * @var callable
      */
@@ -209,6 +215,15 @@ class MailchimpRequest
             throw new MailchimpException("Request headers must be of type array");
         }
         return $this->headers;
+    }
+
+    /**
+     * Get the cUrl options
+     * @return array
+     */
+    public function getCUrlOptions()
+    {
+        return $this->cUrlOptions;
     }
 
     /**
@@ -324,6 +339,15 @@ class MailchimpRequest
     public function setHeaders($headers)
     {
         $this->headers = $headers;
+    }
+
+    /**
+     * Sets the request options
+     * @param array $options
+     */
+    public function setCUrlOptions($options)
+    {
+        $this->cUrlOptions = $options;
     }
 
     /**
