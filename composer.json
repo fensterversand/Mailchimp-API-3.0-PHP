@@ -1,5 +1,5 @@
 {
-    "name": "jhut89/mailchimp3php",
+    "name": "fensterversand/mailchimp3php",
     "description": "A php library for version 3.0 of MailChimp's API",
     "license": "MIT",
     "authors": [
