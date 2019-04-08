@@ -126,6 +126,9 @@ class MailchimpConnection implements HttpRequest
         // make response returnable
         $this->setOption(CURLOPT_RETURNTRANSFER, true);
 
+        //set max download size to 10Kb
+        $this->setOption(CURLOPT_MAXFILESIZE, 10240L);
+
         // get headers in return
         $this->setOption(CURLOPT_HEADER, true);
 
