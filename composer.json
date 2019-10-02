@@ -5,7 +5,7 @@
     "authors": [
         {
             "name": "John Hutcheson",
-            "email": "hutch@theresearchgroup.io"
+            "email": "hutch@theresearchgrp.com"
         }
     ],
     "autoload":{
@@ -15,7 +15,9 @@
         }
     },
     "require": {
-        "php": ">=5.5.0"
+        "php": ">=5.5.0",
+        "ext-curl": "*",
+        "ext-json": "*"
     },
     "homepage": "https://github.com/Jhut89/Mailchimp-API-3.0-PHP",
     "require-dev": {

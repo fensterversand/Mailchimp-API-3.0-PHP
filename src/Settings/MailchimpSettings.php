@@ -22,6 +22,10 @@ class MailchimpSettings
      * @var bool
      */
     private $verify_ssl = true;
+    /**
+     * @var array
+     */
+    private $custom_curl_settings = [];
 
 
     /*************************************
@@ -60,6 +64,15 @@ class MailchimpSettings
         return ($this->shouldDebug() && $this->getLogFile());
     }
 
+
+    /**
+     * @return array
+     */
+    public function getCustomCurlSettings()
+    {
+        return $this->custom_curl_settings;
+    }
+
     /*************************************
      * SETTERS
      *************************************/
@@ -69,13 +82,15 @@ class MailchimpSettings
      */
     public function setDebug($debug)
     {
-        $this->debug = (bool) $debug;
+        $this->debug = (bool)$debug;
     }
 
     /**
      * Set the log file from an absolute path to a writable file
      * log file must already exist to be writable
+     *
      * @param null $log_file
+     *
      * @throws MailchimpException
      */
     public function setLogFile($log_file)
@@ -92,6 +107,19 @@ class MailchimpSettings
      */
     public function setVerifySsl($verify_ssl)
     {
-        $this->verify_ssl = (bool) $verify_ssl;
+        $this->verify_ssl = (bool)$verify_ssl;
+    }
+
+    /**
+     * Set custom curl options by providing a map of
+     * option => value
+     *
+     * @param array $options
+     */
+    public function setCustomCurlSettings(array $options)
+    {
+        foreach ($options as $option => $value) {
+            $this->custom_curl_settings[$option] = $value;
+        }
     }
 }

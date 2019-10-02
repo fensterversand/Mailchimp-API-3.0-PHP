@@ -53,7 +53,9 @@ class Mailchimp
 
     /**
      * Retrieves a new AuthorizedApps instance.
+     *
      * @param null $app_id The ID for an app if retrieving an instance
+     *
      * @return Resources\AuthorizedApps
      */
     public function apps($app_id = null)
@@ -63,6 +65,7 @@ class Mailchimp
 
     /**
      * @param null $workflow_id
+     *
      * @return Resources\Automations
      */
     public function automations($workflow_id = null)
@@ -72,6 +75,7 @@ class Mailchimp
 
     /**
      * @param null $batch_id
+     *
      * @return Resources\BatchOperations
      */
     public function batches($batch_id = null)
@@ -81,6 +85,7 @@ class Mailchimp
 
     /**
      * @param null $batch_webhook_id
+     *
      * @return Resources\BatchWebhooks
      */
     public function batchWebhooks($batch_webhook_id = null)
@@ -90,6 +95,7 @@ class Mailchimp
 
     /**
      * @param null $folder_id
+     *
      * @return Resources\CampaignFolders
      */
     public function campaignFolders($folder_id = null)
@@ -99,6 +105,7 @@ class Mailchimp
 
     /**
      * @param null $campaign_id
+     *
      * @return Resources\Campaigns
      */
     public function campaigns($campaign_id = null)
@@ -108,6 +115,7 @@ class Mailchimp
 
     /**
      * @param null $site_id
+     *
      * @return Resources\ConnectedSites
      */
     public function connectedSites($site_id = null)
@@ -117,6 +125,7 @@ class Mailchimp
 
     /**
      * @param null $conversation_id
+     *
      * @return Resources\Conversations
      */
     public function conversations($conversation_id = null)
@@ -127,6 +136,7 @@ class Mailchimp
 
     /**
      * @param null $store_id
+     *
      * @return Resources\EcommerceStores
      */
     public function ecommerceStores($store_id = null)
@@ -136,6 +146,7 @@ class Mailchimp
 
     /**
      * @param null $outreach_id
+     *
      * @return Resources\FacebookAds
      */
     public function facebookAds($outreach_id = null)
@@ -145,6 +156,7 @@ class Mailchimp
 
     /**
      * @param null $file_id
+     *
      * @return Resources\FileManagerFiles
      */
     public function fileManagerFiles($file_id = null)
@@ -154,6 +166,7 @@ class Mailchimp
 
     /**
      * @param null $folder_id
+     *
      * @return Resources\FileManagerFolders
      */
     public function fileManagerFolders($folder_id = null)
@@ -163,6 +176,7 @@ class Mailchimp
 
     /**
      * @param null $outreach_id
+     *
      * @return Resources\GoogleAds
      */
     public function googleAds($outreach_id = null)
@@ -172,6 +186,7 @@ class Mailchimp
 
     /**
      * @param null $page_id
+     *
      * @return Resources\LandingPages
      */
     public function landingPages($page_id = null)
@@ -181,6 +196,7 @@ class Mailchimp
 
     /**
      * @param null $list_id
+     *
      * @return Resources\Lists
      */
     public function lists($list_id = null)
@@ -198,6 +214,7 @@ class Mailchimp
 
     /**
      * @param null $campaign_id
+     *
      * @return Resources\Reports
      */
     public function reports($campaign_id = null)
@@ -223,6 +240,7 @@ class Mailchimp
 
     /**
      * @param null $folder_id
+     *
      * @return Resources\TemplateFolders
      */
     public function templateFolders($folder_id = null)
@@ -232,6 +250,7 @@ class Mailchimp
 
     /**
      * @param null $template_id
+     *
      * @return Resources\Templates
      */
     public function templates($template_id = null)
@@ -240,8 +259,21 @@ class Mailchimp
     }
 
     /**
+     * @param null $domain_name
+     *
+     * @return Resources\VerifiedDomains
+     */
+    public function verifiedDomains($domain_name = null)
+    {
+        return new Resources\VerifiedDomains($this->request, $this->settings, $domain_name);
+    }
+
+    /**
+     * Concatenate the auth URL given a client_id and redirect URI
+     *
      * @param $client_id
      * @param $redirect_uri
+     *
      * @return string
      */
     public static function getAuthUrl(
@@ -259,10 +291,13 @@ class Mailchimp
     }
 
     /**
+     * Handle the "handshake" to retrieve an api key via OAuth
+     *
      * @param $code
      * @param $client_id
      * @param $client_sec
      * @param $redirect_uri
+     *
      * @return string
      * @throws MailchimpException
      */
@@ -280,25 +315,32 @@ class Mailchimp
         $oauth_string .= "&redirect_uri=" . $encoded_uri;
         $oauth_string .= "&code=" . $code;
 
-        $access_token = self::requestAccessToken($oauth_string);
-        $apiKey = self::requestKeyFromToken($access_token);
+        $request = new MailchimpRequest();
+
+        $access_token = self::requestAccessToken($oauth_string, $request);
+        $request->reset();
+
+        $apiKey = self::requestKeyFromToken($access_token, $request);
 
         return $apiKey;
     }
 
     /**
-     * @param $oauth_string
+     * Request an access token from Mailchimp
+     *
+     * @param string           $oauth_string
+     * @param MailchimpRequest $request
+     *
      * @return mixed
      * @throws MailchimpException
      */
-    private static function requestAccessToken($oauth_string)
+    private static function requestAccessToken($oauth_string, MailchimpRequest $request)
     {
-        $request = self::getStaticRequest();
         $request->setMethod("POST");
         $request->setPayload($oauth_string, false);
         $request->setBaseUrl(MailchimpConnection::TOKEN_REQUEST_URL);
 
-        $connection = self::getStaticConnection($request);
+        $connection = new MailchimpConnection($request);
         $response = $connection->execute();
 
         $access_token = $response->deserialize()->access_token;
@@ -313,42 +355,25 @@ class Mailchimp
     }
 
     /**
-     * @param $access_token
+     * Construct an API key by requesting an access tokens data center
+     *
+     * @param string           $access_token
+     * @param MailchimpRequest $request
+     *
      * @return string
      * @throws MailchimpException
      */
-    private static function requestKeyFromToken($access_token)
+    private static function requestKeyFromToken($access_token, MailchimpRequest $request)
     {
-        $request = self::getStaticRequest();
         $request->setMethod("GET");
         $request->setBaseUrl(MailchimpConnection::OAUTH_METADATA_URL);
         $request->addHeader('Authorization: OAuth ' . $access_token);
 
-        $connection = self::getStaticConnection($request);
+        $connection = new MailchimpConnection($request);
         $response = $connection->execute();
 
         $dc = $response->deserialize()->dc;
 
         return $access_token . '-' . $dc;
-    }
-
-    /**
-     * @param MailchimpRequest $request
-     * @return MailchimpConnection
-     */
-    protected static function getStaticConnection(MailchimpRequest $request)
-    {
-        $connection = new MailchimpConnection($request);
-        return $connection;
-    }
-
-    /**
-     * @return MailchimpRequest
-     * @throws MailchimpException
-     */
-    protected static function getStaticRequest()
-    {
-        $request = new MailchimpRequest();
-        return $request;
     }
 }
