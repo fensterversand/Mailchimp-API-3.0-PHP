@@ -167,8 +167,9 @@ class MailchimpConnection implements HttpRequest
     {
         $this->cUrlOptions = $this->current_request->getCUrlOptions();
 
-        curl_setopt_array($this->handle, $this->cUrlOptions);
-
+        if(is_array($this->cUrlOptions)) {
+            curl_setopt_array($this->handle, $this->cUrlOptions);
+        }
     }
 
     /**
